@@ -1,4 +1,9 @@
+using API.Extensions;
+using Application;
 using Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace API
 {
@@ -11,9 +16,13 @@ namespace API
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGenWithAuth();
 
-            builder.Services.AddInfrastructureLayer(builder.Configuration);
+            builder.Services
+                .AddInfrastructureLayer(builder.Configuration)
+                .AddApplicationLayer();
+
+
 
             var app = builder.Build();
 
@@ -25,6 +34,7 @@ namespace API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
