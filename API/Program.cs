@@ -1,9 +1,9 @@
 using API.Extensions;
+using API.OptionsSetup;
 using Application;
 using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace API
 {
@@ -18,11 +18,12 @@ namespace API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGenWithAuth();
 
+            builder.Services.ConfigureOptions<JwtOptionsSetup>();
+            //builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+
             builder.Services
                 .AddInfrastructureLayer(builder.Configuration)
                 .AddApplicationLayer();
-
-
 
             var app = builder.Build();
 

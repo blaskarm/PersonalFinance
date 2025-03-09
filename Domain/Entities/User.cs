@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Enums;
+
+namespace Domain.Entities;
 
 public class User
 {
@@ -8,6 +10,7 @@ public class User
     public required string Email { get; set; }
     public required string PasswordHash { get; set; }
     public DateTime CreatedAt { get; set; }
+    public UserRole UserRole { get; set; }
     public List<Budget> Budgets { get; set; } = null!;
     public List<Category> Categories { get; set; } = null!;
 }

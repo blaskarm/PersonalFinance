@@ -1,8 +1,5 @@
-﻿using Application.Common;
-using Application.DTOs;
-using Domain.Entities;
-using MediatR;
+﻿using Application.Abstractions.Messaging;
 
 namespace Application.Users.Register;
 
-public sealed record RegisterUserCommand(UserDto User) : IRequest<Result<User>>;
+public sealed record RegisterUserCommand(string Email, string FirstName, string LastName, string Password) : ICommand<Guid>;

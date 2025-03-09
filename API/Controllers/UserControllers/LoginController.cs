@@ -1,5 +1,7 @@
-﻿using Application.DTOs;
+﻿using API.Extensions;
+using API.Infrastructure;
 using Application.Users.Login;
+using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,27 +9,25 @@ namespace API.Controllers.UserControllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class LoginController : ControllerBase
+public sealed class LoginController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    public sealed record LoginRequest(string Email, string Password);
 
-    public LoginController(IMediator mediator)
+    private readonly ISender _sender;
+
+    public LoginController(ISender sender)
     {
-        _mediator = mediator;
+        _sender = sender;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Login([FromBody] LoginUserDto loginUser)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            string result = await _mediator.Send(new LoginUserCommand(loginUser));
+        Result<string> result = await _sender.Send(new LoginUserCommand(request.Email, request.Password), cancellationToken);
 
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+        if (result.IsFailure)
+            return BadRequest(result);
+
+        return Ok(result.Value);
     }
 }

@@ -1,7 +1,5 @@
-﻿using Application.Common;
-using Domain.Entities;
-using MediatR;
+﻿using Application.Abstractions.Messaging;
 
 namespace Application.Users.Queries;
 
-public record GetUserQuery(Guid Id) : IRequest<Result<User>>;
+public sealed record GetUserQuery(Guid Id) : IQuery<UserResponse>;

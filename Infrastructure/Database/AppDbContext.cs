@@ -1,9 +1,10 @@
-﻿using Domain.Entities;
+﻿using Application.Abstractions.Repositories;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Database;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Budget> Budgets { get; set; }

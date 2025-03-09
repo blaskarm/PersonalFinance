@@ -1,4 +1,6 @@
-﻿using Application.DTOs;
+﻿using API.Extensions;
+using API.Infrastructure;
+using Application.DTOs;
 using Application.Users.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -7,30 +9,33 @@ namespace API.Controllers.UserControllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class RegisterController : ControllerBase
+public sealed class RegisterController : ControllerBase
 {
-    private readonly IMediator _mediator;
+    public sealed record Request(string Email, string FirstName, string LastName, string Password);
 
-    public RegisterController(IMediator mediator)
+    private readonly ISender _sender;
+
+    public RegisterController(ISender sender)
     {
-        _mediator = mediator;
+        _sender = sender;
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register([FromBody] UserDto user)
+    public async Task<IResult> Register([FromBody] Request request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var result = await _mediator.Send(new RegisterUserCommand(user));
+        var command = new RegisterUserCommand(
+            request.Email,
+            request.FirstName,
+            request.LastName,
+            request.Password);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        var result = await _sender.Send(command, cancellationToken);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+        return result.Match(Results.Ok, CustomResults.Problem);
+
+        //if (!result.IsSuccess)
+        //    return BadRequest(result.Message);
+
+        //return Ok(result.Message);
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Application.Abstractions.Authentication;
+using Application.Abstractions.Messaging;
 using Application.Abstractions.Repositories;
-using Application.Common;
+using Domain;
 using Domain.Entities;
-using MediatR;
 
 namespace Application.Users.Register;
 
-internal sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<User>>
+internal sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, Guid>
 {
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUserRepository _repository;
@@ -17,22 +17,23 @@ internal sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserC
         _repository = repository;
     }
 
-    public async Task<Result<User>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async Task<Result<Guid>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        if (!await _repository.IsEmailUnique(request.User.Email))
-            return Result<User>.Failure("Email already exists.");
+        if (!await _repository.IsEmailUnique(command.Email))
+            return Result.Failure<Guid>(UserErrors.EmailNotUnique);
 
         var user = new User
         {
-            FirstName = request.User.FirstName,
-            LastName = request.User.LastName,
-            Email = request.User.Email,
-            PasswordHash = _passwordHasher.Hash(request.User.Password),
+            Id = Guid.NewGuid(),
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            Email = command.Email,
+            PasswordHash = _passwordHasher.Hash(command.Password),
             CreatedAt = DateTime.UtcNow
         };
 
         await _repository.AddAsync(user);
 
-        return Result<User>.Success(user);
+        return user.Id;
     }
 }

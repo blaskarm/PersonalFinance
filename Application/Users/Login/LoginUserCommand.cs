@@ -1,6 +1,6 @@
-﻿using Application.DTOs;
-using MediatR;
+﻿using Application.Abstractions.Messaging;
+using Application.DTOs;
 
 namespace Application.Users.Login;
 
-public record LoginUserCommand(LoginUserDto User) : IRequest<string>;
+public sealed record LoginUserCommand(string Email, string Password) : ICommand<string>;
